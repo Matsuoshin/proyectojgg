@@ -1,0 +1,990 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+/*
+ * xPrincipal.java
+ *
+ * Created on 02-ago-2010, 21:30:35
+ */
+package Interfaz;
+
+import Configuracion.Configuracion;
+import Ficheros.ficheros;
+import Logica.Reproductor.ElegirTipo;
+import Reproductor.MedioStrategy;
+import java.io.File;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JSlider;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.tag.FieldKey;
+//import org.pushingpixels.substance.api.SubstanceLookAndFeel;
+import java.lang.System;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author Joaquín
+ */
+public final class xPrincipal extends javax.swing.JFrame implements IPrincipal {
+
+    //Variable para establecer el medio que reproducimos
+    private MedioStrategy medio;
+    //Al iniciar el reproductor no hay archivo para reproducir
+    private File archivo = null;
+    private File ultimaCancion; //Varibale temporal para guardar la ultima cancion reproducida
+    //Variable para elegir el tipo de medio que vamos a reproducir
+    private ElegirTipo elegir = new ElegirTipo();
+    //Variable para leer ficheros
+    private ficheros f = new ficheros();
+    //Variables para los JDialogs
+    private xAbrirURL abrirURL = null;
+    private xBiblioteca biblio = null;
+    private xConfiguracion cc = null;
+    //Localizador de la biblioteca
+    private String biblioteca = null;
+    //Modelo para la lista actual de reproducción.
+    private DefaultTableModel modelo = new MiModelo();
+    private List<String> lista = new ArrayList();
+    private Object[] fila = new Object[6]; // Hay seis columnas en la tabla
+    private int contador = 0;
+    //Repeticion de canciona o lista.
+    private boolean repiteUna = false;
+    private boolean repiteLista = false;
+    //Variables de configuracion
+    private String sFichero;
+    private String idioma;
+    private Configuracion con = new Configuracion();
+
+    /** Creates new form xPrincipal */
+    public xPrincipal() {
+        initComponents();
+
+        this.setTitle("Flusic - Feel your MuSiC!!");
+
+        abrirURL = new xAbrirURL(this, true);
+        biblio = new xBiblioteca(this, true);
+
+        /*
+         *  Carga de la biblioteca de medios.
+         */
+        this.setsFichero(con.dBiblioteca());
+
+        File fichero = new File(getsFichero());
+        if (fichero.exists()) {
+            DefaultMutableTreeNode padre = new DefaultMutableTreeNode("Biblioteca");
+            padre.removeAllChildren();
+            DefaultTreeModel modelo = new DefaultTreeModel(padre);
+            String dir1 = fichero.getAbsolutePath();
+            System.out.println(dir1);
+            biblioteca = f.leeFichero(dir1);
+            System.out.println(biblioteca);
+            listAllFiles(biblioteca, padre, true);
+            this.treeBiblioteca.setModel(modelo);
+            System.out.println("Biblioteca de medios cargada con exito.");
+        } else {
+            System.out.println("No existe la biblioteca de medios.");
+        }
+
+        /*
+         * Look And Feel del reproductor - librería substance
+         */
+        //SubstanceLookAndFeel.setSkin("org.pushingpixels.substance.api.skin.SaharaSkin");
+
+        /*
+         * Dibujado e inicialización del JSlider del volumen
+         */
+        this.volumen.setMajorTickSpacing(50);
+        this.volumen.setMinorTickSpacing(10);
+        this.volumen.setPaintTrack(true);
+        this.volumen.setPaintTicks(true);
+        this.volumen.setPaintLabels(true);
+        Dictionary labelTable = new Hashtable();
+        labelTable.put(new Integer(0), new JLabel("0%"));
+        labelTable.put(new Integer(50), new JLabel("50%"));
+        labelTable.put(new Integer(100), new JLabel("100%"));
+        this.volumen.setLabelTable(labelTable);
+
+        /*
+         * Dibujado e inicialización del JSlider que marca el tiempo de reproducción
+         * del medio.
+         */
+        this.barra.setValue(0);
+
+        /*
+         * Lista actual de reproducción.
+         */
+        modelo.addColumn("#");
+        modelo.addColumn("Titulo");
+        modelo.addColumn("Artista");
+        modelo.addColumn("Album");
+        modelo.addColumn("Comprar");
+        this.listaReproduccion.setModel(modelo);
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        treeBiblioteca = new javax.swing.JTree();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTree1 = new javax.swing.JTree();
+        play = new javax.swing.JButton();
+        pause = new javax.swing.JButton();
+        resume = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JSeparator();
+        retroceder = new javax.swing.JButton();
+        stop = new javax.swing.JButton();
+        volumen = new javax.swing.JSlider();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        listaReproduccion = new javax.swing.JTable();
+        tiempoTotal = new javax.swing.JLabel();
+        TITULO = new javax.swing.JTextField();
+        Examinar = new javax.swing.JButton();
+        ARTISTA = new javax.swing.JTextField();
+        ALBUM = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        barra = new javax.swing.JSlider();
+        avanzar = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        twitter = new javax.swing.JButton();
+        facebook = new javax.swing.JButton();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        menuArchivo = new javax.swing.JMenu();
+        abrirMedio = new javax.swing.JMenuItem();
+        menuConfiguracion = new javax.swing.JMenu();
+        elegirBiblioteca = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
+        treeBiblioteca.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        treeBiblioteca.setDragEnabled(true);
+        treeBiblioteca.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                treeBibliotecaValueChanged(evt);
+            }
+        });
+        jScrollPane1.setViewportView(treeBiblioteca);
+
+        jTabbedPane1.addTab("Biblioteca", jScrollPane1);
+
+        jScrollPane4.setViewportView(jTree1);
+
+        jTabbedPane1.addTab("Streaming", jScrollPane4);
+
+        play.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Interfaz/Images/g1169.png"))); // NOI18N
+        play.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                playMouseClicked(evt);
+            }
+        });
+
+        pause.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Interfaz/Images/g1233.png"))); // NOI18N
+        pause.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pauseMouseClicked(evt);
+            }
+        });
+
+        resume.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Interfaz/Images/resume.png"))); // NOI18N
+        resume.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                resumeMouseClicked(evt);
+            }
+        });
+
+        retroceder.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Interfaz/Images/g5666.png"))); // NOI18N
+
+        stop.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Interfaz/Images/g1218.png"))); // NOI18N
+        stop.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                stopMouseClicked(evt);
+            }
+        });
+
+        volumen.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                volumenStateChanged(evt);
+            }
+        });
+
+        listaReproduccion.setDragEnabled(true);
+        listaReproduccion.setDropMode(javax.swing.DropMode.INSERT_ROWS);
+        listaReproduccion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                listaReproduccionMouseClicked(evt);
+            }
+        });
+        jScrollPane2.setViewportView(listaReproduccion);
+
+        tiempoTotal.setText("-- : -- / -- : --");
+
+        TITULO.setEditable(false);
+        TITULO.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        TITULO.setText("Título");
+        TITULO.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        Examinar.setText("Examinar");
+        Examinar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ExaminarMouseClicked(evt);
+            }
+        });
+
+        ARTISTA.setEditable(false);
+        ARTISTA.setText("Artista");
+        ARTISTA.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        ALBUM.setEditable(false);
+        ALBUM.setText("Album");
+        ALBUM.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel2.setText("Título:");
+
+        jLabel3.setText("Artista:");
+
+        jLabel4.setText("Álbum:");
+
+        barra.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                barraMouseReleased(evt);
+            }
+        });
+
+        avanzar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Interfaz/Images/g5649.png"))); // NOI18N
+
+        jLabel1.setText("Reproductor Multimedia en Streaming v 0.1 - alpha");
+
+        twitter.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Interfaz/Images/twitter.png"))); // NOI18N
+
+        facebook.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Interfaz/Images/facebook.png"))); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(816, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 1049, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(barra, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(10, 10, 10)
+                                .addComponent(tiempoTotal))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(7, 7, 7)
+                                        .addComponent(retroceder, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(play, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(pause, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(resume, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(stop, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(avanzar, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(volumen, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(jLabel2)
+                                                    .addComponent(jLabel3)
+                                                    .addComponent(jLabel4))
+                                                .addGap(18, 18, 18)
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addComponent(ALBUM, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(ARTISTA, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                    .addComponent(TITULO, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                .addComponent(Examinar)
+                                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 540, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
+                                .addComponent(facebook)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(twitter)))))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(11, 11, 11)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(14, 14, 14)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel2)
+                                    .addComponent(TITULO, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(9, 9, 9)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(ARTISTA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(10, 10, 10)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(ALBUM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel4))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 295, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(26, 26, 26)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(barra, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(4, 4, 4)
+                                        .addComponent(tiempoTotal)))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(Examinar)
+                                    .addComponent(volumen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(retroceder)
+                                    .addComponent(play)
+                                    .addComponent(pause)
+                                    .addComponent(resume)
+                                    .addComponent(stop)
+                                    .addComponent(avanzar)))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(460, 460, 460)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(facebook)
+                                    .addComponent(twitter)))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 513, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addContainerGap(18, Short.MAX_VALUE))
+        );
+
+        menuArchivo.setText("Archivo");
+
+        abrirMedio.setText("Abrir medio");
+        abrirMedio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                abrirMedioActionPerformed(evt);
+            }
+        });
+        menuArchivo.add(abrirMedio);
+
+        jMenuBar1.add(menuArchivo);
+
+        menuConfiguracion.setText("Configuración");
+
+        elegirBiblioteca.setText("Elegir biblioteca");
+        elegirBiblioteca.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                elegirBibliotecaActionPerformed(evt);
+            }
+        });
+        menuConfiguracion.add(elegirBiblioteca);
+
+        jMenuBar1.add(menuConfiguracion);
+
+        setJMenuBar(jMenuBar1);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void ExaminarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ExaminarMouseClicked
+        //Creamos el JFileChooser, la ventana de elección de archivos.
+        JFileChooser fileChooser = new JFileChooser();
+
+        //Filtro de los archivos a abrir.
+        FileNameExtensionFilter filtro = new FileNameExtensionFilter("MP3 & AVI", "mp3", "avi");
+        fileChooser.setFileFilter(filtro);
+
+        int seleccion = fileChooser.showOpenDialog(null);
+
+        if (seleccion == JFileChooser.APPROVE_OPTION) {
+            archivo = fileChooser.getSelectedFile();
+            String fileName = archivo.getName();
+            String ext = (fileName.lastIndexOf(".") == -1) ? "" : fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+
+            if (ext.equalsIgnoreCase("mp3")) {
+
+                //Me guardo cual ha sido la última canción reproducida.
+                ultimaCancion = archivo;
+
+                this.agregaCancion(archivo);
+                //this.reproducirMedio(archivo);
+
+            } else if (ext.equalsIgnoreCase("avi")) {
+                this.setMedio(elegir.seleccionaMedio(archivo));
+                if (getMedio().isPlaying() == false) {
+                    getMedio().runEngine(archivo);
+                }
+            }
+        }
+    }//GEN-LAST:event_ExaminarMouseClicked
+
+    private void playMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_playMouseClicked
+
+        /*
+         * Al hacer click en el boton del play reproducimos un archivo, si el medio
+         * es null nunca se ha reproducido un archivo, por lo que si no lo es, la
+         * variable 'ultimaCancion' se ha inicializado.
+         */
+        try {
+            if (getMedio() != null) {
+                if (!medio.isPlaying() || getMedio().obtenerEstado() == org.gstreamer.State.PAUSED) {
+                    getMedio().stop();
+                    this.reproducirMedio(getUltimaCancion());
+                } else if (getMedio() == null) {
+                    System.out.println("RESUME: El medio es null.");
+                }
+            } else {
+                System.out.println("No existe el medio.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error en la funcion PLAY: " + e.getLocalizedMessage());
+        }
+
+    }//GEN-LAST:event_playMouseClicked
+
+    private void pauseMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pauseMouseClicked
+
+        try {
+            if (getMedio() == null) {
+                System.out.println("PAUSE: No existe el medio.");
+            } else {
+                if (getMedio().isPlaying() == true) {
+                    getMedio().pause();
+                } else {
+                    System.out.println("PAUSE: No hay medio en la reproducción o ya está pausado.");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error en la funcion PAUSE: " + e.getLocalizedMessage());
+        }
+
+    }//GEN-LAST:event_pauseMouseClicked
+
+    private void resumeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resumeMouseClicked
+
+        try {
+            if (!medio.isPlaying() && getMedio().obtenerEstado() == org.gstreamer.State.PAUSED) {
+                getMedio().resume();
+            } else if (getMedio() == null) {
+                System.out.println("RESUME: El medio es null.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error en la funcion RESUME: " + e.getLocalizedMessage());
+        }
+
+    }//GEN-LAST:event_resumeMouseClicked
+
+    private void stopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_stopMouseClicked
+
+        try {
+            if (getMedio() == null) {
+                System.out.println("STOP: El medio es null.");
+            } else {
+                if (getMedio().isPlaying() == true) {
+                    getMedio().stop();
+                    getMedio().establecerEstado();
+                } else {
+                    System.out.println("No se está reproduciendo ningún medio.");
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error en la funcion STOP: " + e.getLocalizedMessage());
+        }
+
+    }//GEN-LAST:event_stopMouseClicked
+
+    private void volumenStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_volumenStateChanged
+
+        try {
+            if (getMedio() == null) {
+                System.out.println("No hay medio para cambiarle el volumen.");
+            } else {
+                String sVol;
+                double vol = 0;
+                this.volumen = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
+                JSlider source = (JSlider) evt.getSource();
+
+                vol = (double) ((JSlider) evt.getSource()).getValue();
+                vol = vol / 100.0;
+                if (vol <= 0) {
+                    vol = 0;
+                } else if (vol >= 1) {
+                    vol = 1;
+                }
+
+                sVol = Double.toString(vol);
+                this.volumen.setToolTipText(sVol);
+
+                getMedio().setVolume(vol);
+            }
+        } catch (Exception e) {
+            System.out.println("Error en la funcion del volumen: " + e.getLocalizedMessage());
+        }
+    }//GEN-LAST:event_volumenStateChanged
+
+    private void treeBibliotecaValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_treeBibliotecaValueChanged
+
+        /*
+         * Este valor se debe de leer desde un fichero
+         */
+        String[] st = null;
+        String dir = "";
+        int i = 0;
+
+        TreePath path = evt.getPath();
+        Object[] nodos = path.getPath();
+        System.out.println("Path seleccionado:");
+
+        for (int nodo = 1; nodo < nodos.length; nodo++) {
+            System.out.println(nodos[nodo].toString() + "\\");
+            dir += nodos[nodo].toString() + "\\";
+        }
+        dir = "\\".concat(dir);
+
+        System.out.println(dir);
+        dir = dir.substring(0, dir.length() - 1);
+        System.out.println(dir);
+        String cancion = biblioteca.concat(dir);
+        File file = new File(cancion);
+        System.out.println(file.getAbsolutePath());
+
+        /*
+         * Con este IF controlamos que el nodo donde hacemos click es un
+         * fichero y no un directorio.
+         */
+        if (file.isFile()) {
+            this.agregaCancion(file);
+        }
+
+        DefaultMutableTreeNode ultimoNodo = (DefaultMutableTreeNode) nodos[nodos.length - 1];
+
+    }//GEN-LAST:event_treeBibliotecaValueChanged
+
+    private void abrirMedioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_abrirMedioActionPerformed
+        this.abrirURL.setVisible(true);
+        this.setMedio(abrirURL.getMedio());
+    }//GEN-LAST:event_abrirMedioActionPerformed
+
+    private void elegirBibliotecaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_elegirBibliotecaActionPerformed
+        this.biblio.setVisible(true);
+    }//GEN-LAST:event_elegirBibliotecaActionPerformed
+
+    private void listaReproduccionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listaReproduccionMouseClicked
+
+        if (evt.getClickCount() >= 2) {
+            int filaLista = listaReproduccion.rowAtPoint(evt.getPoint());
+            int columna = 0;
+            if ((filaLista > -1) && (columna > -1)) {
+                Object st = modelo.getValueAt(filaLista, columna);
+                String a = st.toString();
+                System.out.println(a);
+                int num = Integer.parseInt(a);
+                File c = new File(lista.get(num - 1));
+                this.reproducirMedio(c);
+            }
+        }
+
+    }//GEN-LAST:event_listaReproduccionMouseClicked
+
+    private void barraMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_barraMouseReleased
+
+        getMedio().pause();
+        if (getMedio() != null) {
+            this.barra.setMaximum(getMedio().segundosTotales());
+            this.barra.setMinimum(0);
+            getMedio().establecerPosicion((long) this.barra.getValue());
+        }
+        getMedio().resume();
+
+    }//GEN-LAST:event_barraMouseReleased
+
+    //Agrego canciones a la lista de reproduccion.
+    public void agregaCancion(File file) {
+
+        //Obtengo el path de la canción que quiero reproducir
+        String s = file.getAbsolutePath();
+
+        //Si la lista ya contiene la cancion, simplemente la reproduzco.
+        if (lista.contains(s)) {
+            this.reproducirMedio(file);
+
+        //En otro caso, la registro y obtengo sus datos.
+        } else {
+            try {
+                contador = contador + 1;
+                fila[0] = contador;
+                fila[1] = this.getTitulo(file);
+                fila[2] = this.getArtista(file);
+                fila[3] = this.getAlbum(file);
+                fila[4] = "e-Tienda";
+
+                /*
+                 * Si a la hora de agregar una canción desde la biblioteca
+                 * la lista de reproducción está vacía, agregamos la canción y
+                 * comienza la reproducción, en otro caso, agregamos la canción
+                 * solo.
+                 */
+
+                //Si aun no se ha agregado ninguna cancion.
+                if (modelo.getRowCount() == 0) {
+                    modelo.addRow(fila);
+                    lista.add(file.getAbsolutePath());
+                    this.reproducirMedio(file);
+
+                //Si ya se ha agregado alguna cancion y no se está reproduciendo ninguna.
+                } else if (modelo.getRowCount() > 0 && !medio.isPlaying()) {
+                    lista.add(file.getAbsolutePath());
+                    modelo.addRow(fila);
+                    this.reproducirMedio(file);
+
+                /*Si en ese momento se está reproduciendo algo, agregamos la
+                    nueva cancion al final de la lista*/
+                } else {
+                    lista.add(file.getAbsolutePath());
+                    modelo.addRow(fila);
+                }
+
+            } catch (Exception e) {
+                System.out.println("Error al agregar una cancion a la lista de reproduccion: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void reproducirMedio(File archivo) {
+        this.ultimaCancion = archivo;
+        this.setMedio(elegir.seleccionaMedio(archivo));
+        getMedio().runEngine(archivo);
+        this.tiempoTotal();
+        this.etiquetas(getUltimaCancion());
+        getMedio().play();
+        MiWorker mw = new MiWorker(getMedio(), this.barra);
+        mw.execute();
+    }
+
+    @Override
+    public void streaming(String url) {
+        this.setMedio(elegir.seleccionaURL(url));
+        getMedio().runURL(url);
+    }
+
+    public void tiempoTotal() {
+        int min = getMedio().minutosTotales();
+        int sec = getMedio().segundosTotales();
+        sec = sec - (min * 60);
+        String tiempo = " / " + Integer.toString(min) + " : " + Integer.toString(sec);
+        this.tiempoTotal.setText(tiempo);
+    }
+
+    public void setTiempo(String t) {
+        String tt = tiempoTotal.getText();
+
+
+        this.tiempoTotal.setText(t + tt);
+
+
+    }
+
+    /*
+     * Esta función es la encargada de ir cambiando los datos de la canción
+     * en la interfaz principal.
+     */
+    public void etiquetas(File f) {
+        try {
+            AudioFile mFile = AudioFileIO.read(f);
+            org.jaudiotagger.tag.Tag tag = mFile.getTag();
+            AudioHeader a = mFile.getAudioHeader();
+
+            //Obtenemos el título de la canción.
+
+
+            if (tag.getFirst(FieldKey.TITLE).equals("")) {
+                this.TITULO.setText("Desconocido");
+
+
+            } else {
+                this.TITULO.setText(tag.getFirst(FieldKey.TITLE));
+
+
+            } //Obtenemos el nombre del artista de la canción.
+            if (tag.getFirst(FieldKey.ARTIST).isEmpty()) {
+                this.ARTISTA.setText("Desconocido");
+
+
+            } else {
+                this.ARTISTA.setText(tag.getFirst(FieldKey.ARTIST));
+
+
+            } //Obtenemos el nombre del album de la canción.
+            if (tag.getFirst(FieldKey.ALBUM).equals("")) {
+                this.ALBUM.setText("Desconocido");
+
+
+            } else {
+                this.ALBUM.setText(tag.getFirst(FieldKey.ALBUM));
+
+
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Se ha producido un error al seleccionar las etiquetas: " + ex.getLocalizedMessage());
+
+
+        }
+    }
+
+    public void listAllFiles(String directory, DefaultMutableTreeNode parent, Boolean recursive) {
+        File[] children = new File(directory).listFiles(); // list all the files in the directory
+
+
+        for (int i = 0; i
+                < children.length; i++) { // loop through each
+            DefaultMutableTreeNode node = new DefaultMutableTreeNode(children[i].getName());
+            // only display the node if it isn't a folder, and if this is a recursive call
+
+
+            if (children[i].isDirectory() && recursive) {
+                parent.add(node); // add as a child node
+                System.out.println("[D] - " + children[i]);
+                listAllFiles(
+                        children[i].getPath(), node, recursive); // call again for the subdirectory
+
+
+            } else if (!children[i].isDirectory()) { // otherwise, if it isn't a directory
+                if (devuelveTipo(children[i].getAbsolutePath())) {
+                    parent.add(node); // add it as a node and do nothing else
+                    System.out.println("[f] - " + children[i]);
+
+
+                }
+            }
+        }
+    }
+
+    public boolean devuelveTipo(String f) {
+        boolean value;
+
+        String ext = (f.lastIndexOf(".") == -1) ? "" : f.substring(f.lastIndexOf(".") + 1, f.length());
+
+        if (ext.equalsIgnoreCase("mp3")) {
+            value = true;
+        } else {
+            value = false;
+        }
+        return value;
+    }
+
+    /*
+     * Setters y getters para los datos de la cancion.
+     */
+    public String getTitulo(File f) throws Exception {
+        String titulo;
+        AudioFile mFile = AudioFileIO.read(f);
+        org.jaudiotagger.tag.Tag tag = mFile.getTag();
+        AudioHeader a = mFile.getAudioHeader();
+        titulo = tag.getFirst(FieldKey.TITLE);
+        return titulo;
+    }
+
+    public String getArtista(File f) throws Exception {
+        String titulo;
+        AudioFile mFile = AudioFileIO.read(f);
+        org.jaudiotagger.tag.Tag tag = mFile.getTag();
+        AudioHeader a = mFile.getAudioHeader();
+        titulo = tag.getFirst(FieldKey.ARTIST);
+        return titulo;
+    }
+
+    public String getAlbum(File f) throws Exception {
+        String titulo;
+        AudioFile mFile = AudioFileIO.read(f);
+        org.jaudiotagger.tag.Tag tag = mFile.getTag();
+        AudioHeader a = mFile.getAudioHeader();
+        titulo = tag.getFirst(FieldKey.ALBUM);
+        return titulo;
+    }
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                JFrame.setDefaultLookAndFeelDecorated(true);
+
+
+                new xPrincipal().setVisible(true);
+
+
+            }
+        });
+
+
+    }
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField ALBUM;
+    private javax.swing.JTextField ARTISTA;
+    private javax.swing.JButton Examinar;
+    private javax.swing.JTextField TITULO;
+    private javax.swing.JMenuItem abrirMedio;
+    private javax.swing.JButton avanzar;
+    private javax.swing.JSlider barra;
+    private javax.swing.JMenuItem elegirBiblioteca;
+    private javax.swing.JButton facebook;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTree jTree1;
+    private javax.swing.JTable listaReproduccion;
+    private javax.swing.JMenu menuArchivo;
+    private javax.swing.JMenu menuConfiguracion;
+    private javax.swing.JButton pause;
+    private javax.swing.JButton play;
+    private javax.swing.JButton resume;
+    private javax.swing.JButton retroceder;
+    private javax.swing.JButton stop;
+    private javax.swing.JLabel tiempoTotal;
+    private javax.swing.JTree treeBiblioteca;
+    private javax.swing.JButton twitter;
+    private javax.swing.JSlider volumen;
+    // End of variables declaration//GEN-END:variables
+
+    /**
+     * @return the repiteUna
+     */
+    @Override
+    public boolean isRepiteUna() {
+        return repiteUna;
+    }
+
+    /**
+     * @param repiteUna the repiteUna to set
+     */
+    public void setRepiteUna(boolean repiteUna) {
+        this.repiteUna = repiteUna;
+    }
+
+    /**
+     * @return the repiteLista
+     */
+    @Override
+    public boolean isRepiteLista() {
+        return repiteLista;
+    }
+
+    /**
+     * @param repiteLista the repiteLista to set
+     */
+    public void setRepiteLista(boolean repiteLista) {
+        this.repiteLista = repiteLista;
+    }
+
+    /**
+     * @return the ultimaCancion
+     */
+    @Override
+    public File getUltimaCancion() {
+        return ultimaCancion;
+    }
+
+    /**
+     * @return the medio
+     */
+    public MedioStrategy getMedio() {
+        return medio;
+    }
+
+    /**
+     * @param medio the medio to set
+     */
+    public void setMedio(MedioStrategy medio) {
+        this.medio = medio;
+    }
+
+    /**
+     * @return the sFichero
+     */
+    public String getsFichero() {
+        return sFichero;
+    }
+
+    /**
+     * @param sFichero the sFichero to set
+     */
+    public void setsFichero(String sFichero) {
+        this.sFichero = sFichero;
+    }
+
+    /**
+     * @return the idioma
+     */
+    public String getIdioma() {
+        return idioma;
+    }
+
+    /**
+     * @param idioma the idioma to set
+     */
+    public void setIdioma(String idioma) {
+        this.idioma = idioma;
+    }
+}
